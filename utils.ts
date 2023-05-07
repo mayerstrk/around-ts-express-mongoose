@@ -8,6 +8,7 @@ const enum Status {
 const enum ErrorName {
 	validation = 'ValidationError',
 	notFound = 'DocumentNotFoundError',
+	cast = 'CastError',
 }
 
 // Const enum Resource {

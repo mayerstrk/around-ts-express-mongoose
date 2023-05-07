@@ -45,6 +45,11 @@ const handleError = (error: Error, response: Response) => {
 			break;
 		}
 
+		case ErrorName.cast: {
+			response.status(Status.badRequest);
+			break;
+		}
+
 		default: {
 			response.status(Status.internalServerError);
 			break;
@@ -52,9 +57,7 @@ const handleError = (error: Error, response: Response) => {
 	}
 
 	response.send({
-		name: errorName,
-		message: error.message ?? 'Error',
-		error,
+		message: error.message ?? 'Unexpected error',
 	});
 };
 

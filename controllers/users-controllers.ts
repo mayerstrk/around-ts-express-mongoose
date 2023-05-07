@@ -42,11 +42,11 @@ const createUser = controllerBuilder.mutation({
 });
 
 const updateProfile = controllerBuilder.mutation({
-	mutation: ({ params, body }) => updateProfileMutation(params.id, body),
+	mutation: ({ user, body }) => updateProfileMutation(user._id, body),
 });
 
 const updateAvatar = controllerBuilder.mutation({
-	mutation: ({ params, body }) => updateAvatarMutation(params.id, body),
+	mutation: ({ user, body }) => updateAvatarMutation(user._id, body),
 });
 
 export {

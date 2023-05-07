@@ -5,6 +5,8 @@ import bodyParser from 'body-parser';
 import routes from './routes';
 import { Status } from './utils';
 
+// ! Linter settings are in package.json
+
 const { PORT = 1000 } = process.env;
 const app = express();
 
