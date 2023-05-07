@@ -1,18 +1,22 @@
 const enum Status {
+	ok = 200,
+	badRequest = 400,
 	notFound = 404,
 	internalServerError = 500,
-	ok = 200,
 }
 
-const enum ErrorCode {
-	noData = 'noData',
-	unvalidSchema = 'unvalidSchema',
+const enum ErrorName {
+	validation = 'ValidationError',
+	notFound = 'DocumentNotFoundError',
 }
 
-const enum Resource {
-	user = 'user',
-	users = 'users',
-	cards = 'cards',
-}
+// Const enum Resource {
+// 	user = 'user',
+// 	users = 'users',
+// 	cards = 'cards',
+// }
 
-export { Status, ErrorCode, Resource };
+const linkValidationRegex =
+	/^http(s)?:\/\/(www.)?[a-z\d.~:/?%#\]@!$&'()*+,;=]{1,256}$/i;
+
+export { Status, ErrorName, linkValidationRegex };
