@@ -17,6 +17,6 @@ const enum ErrorName {
 // }
 
 const linkValidationRegex =
-	/^http(s)?:\/\/(www.)?[a-z\d.~:/?%#\]@!$&'()*+,;=]{1,256}$/i;
+	/^http(s)?:\/\/(www.)?[\w.~:/?%#\]@!$&'()*+,;=]{1,256}$/i;
 
 export { Status, ErrorName, linkValidationRegex };

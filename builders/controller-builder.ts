@@ -21,6 +21,10 @@ interface AppRequest extends Request {
 	params: {
 		id: string;
 	};
+
+	user: {
+		_id: string;
+	};
 }
 
 interface AppResponse extends Response {

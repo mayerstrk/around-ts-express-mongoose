@@ -12,11 +12,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-connect('mongodb://127.0.0.1:27017/arounddb');
+connect('mongodb://127.0.0.1:27017/aroundb');
 
 app.use((request: Request, response, next) => {
 	(request as Request & { user: { _id: string } }).user = {
-		_id: '6456a83a6d101b68b0c63b56',
+		_id: '6457084afc70e0645e49b7aa',
 	};
 	next();
 });

@@ -3,14 +3,18 @@ import { CardDoc, type CardInput } from '../models/card-model';
 
 const getCardsQuery = () => CardDoc.find({});
 
-const createCardMutation = async (payload: CardInput) =>
-	CardDoc.create(payload);
+const createCardMutation = async (payload: CardInput, user: { _id: string }) =>
+	CardDoc.create({ ...payload, owner: user._id });
 
-const likeCardMutation = (id: string, payload: { likes: string }) =>
-	CardDoc.findByIdAndUpdate(id, { $addToSet: payload }, { new: true });
+const likeCardMutation = (id: string, user: { _id: string }) =>
+	CardDoc.findByIdAndUpdate(
+		id,
+		{ $addToSet: { likes: user._id } },
+		{ new: true }
+	);
 
-const dislikeCardMutation = (id: string, payload: { likes: string }) =>
-	CardDoc.findByIdAndUpdate(id, { $pull: payload }, { new: true });
+const dislikeCardMutation = (id: string, user: { _id: string }) =>
+	CardDoc.findByIdAndUpdate(id, { $pull: { likes: user._id } }, { new: true });
 
 const deleteCardMutation = async (id: string) => CardDoc.findByIdAndDelete(id);
 
@@ -28,15 +32,15 @@ const getCards = controllerBuilder.query({
 });
 
 const createCard = controllerBuilder.mutation({
-	mutation: async ({ body }) => createCardMutation(body),
+	mutation: async ({ body, user }) => createCardMutation(body, user),
 });
 
 const likeCard = controllerBuilder.mutation({
-	mutation: ({ params, body }) => likeCardMutation(params.id, body),
+	mutation: ({ params, user }) => likeCardMutation(params.id, user),
 });
 
 const dislikeCard = controllerBuilder.mutation({
-	mutation: ({ params, body }) => dislikeCardMutation(params.id, body),
+	mutation: ({ params, user }) => dislikeCardMutation(params.id, user),
 });
 
 const deleteCard = controllerBuilder.mutation({
