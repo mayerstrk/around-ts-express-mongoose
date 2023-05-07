@@ -1,6 +1,4 @@
 import { type Request, type Response } from 'express';
-import { type UserData } from '../models/user-model';
-import { type CardData } from '../models/card-model';
 import {
 	type UsersQuery,
 	type UsersMutation,
