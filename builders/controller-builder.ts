@@ -11,8 +11,6 @@ import {
 } from '../controllers/cards-controller';
 import { Status, ErrorName } from '../utils';
 
-type AppData = CardData | UserData;
-
 type AppQuery = UsersQuery | CardsQuery;
 
 type AppMutation = UsersMutation | CardsMutation;
@@ -25,10 +23,6 @@ interface AppRequest extends Request {
 	user: {
 		_id: string;
 	};
-}
-
-interface AppResponse extends Response {
-	body: Partial<AppData>;
 }
 
 interface QueryArgs {
@@ -93,4 +87,4 @@ const controllerBuilder = {
 };
 
 export default controllerBuilder;
-export type { AppQuery, AppRequest, AppResponse };
+export type { AppQuery, AppRequest };
