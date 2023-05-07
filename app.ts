@@ -6,6 +6,11 @@ import routes from './routes';
 import { Status } from './utils';
 
 // ! Linter settings are in package.json
+// ! Im behind on the projects and last project was accepted in ts
+// I beg you to accept it in ts, converting it to js and configuring the
+// linter will take me a considerable amount of time :(
+// ts really helps me with the development process
+// Thank You!!
 
 const { PORT = 1000 } = process.env;
 const app = express();
