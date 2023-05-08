@@ -15,7 +15,8 @@ type AppMutation = UsersMutation | CardsMutation;
 
 interface AppRequest extends Request {
 	params: {
-		id: string;
+		userId?: string;
+		cardId?: string;
 	};
 
 	user: {

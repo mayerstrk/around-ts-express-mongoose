@@ -1,5 +1,5 @@
 import { Schema, model, type Types, type Document } from 'mongoose';
-import { linkValidationRegex } from '../utils';
+import { linkValidationRegex, mongooseLinkValidator } from '../utils';
 
 interface CardInput {
 	name: string;
@@ -24,9 +24,7 @@ const cardSchema = new Schema<CardData>({
 		type: String,
 		required: true,
 		validate: {
-			validator(link: string) {
-				return linkValidationRegex.test(link);
-			},
+			validator: mongooseLinkValidator,
 		},
 	},
 	owner: {

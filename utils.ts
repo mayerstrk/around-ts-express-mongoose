@@ -20,4 +20,6 @@ const enum ErrorName {
 const linkValidationRegex =
 	/^http(s)?:\/\/(www.)?[\w.~:/?%#\]@!$&'()*+,;=]{1,256}$/i;
 
-export { Status, ErrorName, linkValidationRegex };
+const mongooseLinkValidator = (link: string) => linkValidationRegex.test(link);
+
+export { Status, ErrorName, linkValidationRegex, mongooseLinkValidator };

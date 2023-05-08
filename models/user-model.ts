@@ -1,4 +1,5 @@
 import { Schema, model, type Document } from 'mongoose';
+import { mongooseLinkValidator } from '../utils';
 
 interface UserInput {
 	name: string;
@@ -12,9 +13,25 @@ interface UserData extends Document, UserInput {
 }
 
 const userSchema = new Schema<UserInput>({
-	name: { type: String, required: true },
-	about: { type: String, required: true },
-	avatar: { type: String, required: true },
+	name: {
+		type: String,
+		minlength: 2,
+		maxlength: 30,
+		required: true,
+	},
+	about: {
+		type: String,
+		minlength: 2,
+		maxlength: 30,
+		required: true,
+	},
+	avatar: {
+		type: String,
+		required: true,
+		validate: {
+			validator: mongooseLinkValidator,
+		},
+	},
 });
 
 userSchema.set('timestamps', true);

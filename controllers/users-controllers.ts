@@ -8,14 +8,22 @@ const createUserMutation = async (payload: UserInput) =>
 	UserDoc.create(payload);
 
 const updateProfileMutation = (
-	id: string,
+	userId: string,
 	payload: { name: UserData['name']; about: UserData['about'] }
-) => UserDoc.findByIdAndUpdate({ _id: id }, payload);
+) =>
+	UserDoc.findByIdAndUpdate(userId, payload, {
+		new: true,
+		runValidators: true,
+	});
 
 const updateAvatarMutation = (
-	id: string,
+	userId: string,
 	payload: { avatar: UserData['avatar'] }
-) => UserDoc.findByIdAndUpdate({ _id: id }, payload);
+) =>
+	UserDoc.findByIdAndUpdate(userId, payload, {
+		new: true,
+		runValidators: true,
+	});
 
 type UsersQuery = ReturnType<typeof getUserQuery | typeof getUsersQuery>;
 
