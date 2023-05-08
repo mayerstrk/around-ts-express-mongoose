@@ -1,10 +1,20 @@
 import controllerBuilder from '../builders/controller-builder';
 import { CardDoc, type CardInput } from '../models/card-model';
+import { QueryKind } from '../utils';
 
 const getCardsQuery = () => CardDoc.find({});
 
+const getCardsController = controllerBuilder.query({
+	query: getCardsQuery,
+	queryKind: QueryKind.all,
+});
+
 const createCardMutation = async (payload: CardInput, userId: string) =>
 	CardDoc.create({ ...payload, owner: userId });
+
+const createCardController = controllerBuilder.mutation({
+	mutation: async ({ body, user }) => createCardMutation(body, user._id),
+});
 
 const likeCardMutation = (cardId: string, userId: string) =>
 	CardDoc.findByIdAndUpdate(
@@ -13,6 +23,10 @@ const likeCardMutation = (cardId: string, userId: string) =>
 		{ new: true, runValidators: true }
 	);
 
+const likeCardController = controllerBuilder.mutation({
+	mutation: ({ params, user }) => likeCardMutation(params.cardId!, user._id),
+});
+
 const dislikeCardMutation = (cardId: string, userId: string) =>
 	CardDoc.findByIdAndUpdate(
 		cardId,
@@ -20,43 +34,29 @@ const dislikeCardMutation = (cardId: string, userId: string) =>
 		{ new: true }
 	);
 
+const dislikeCardController = controllerBuilder.mutation({
+	mutation: ({ params, user }) => dislikeCardMutation(params.cardId!, user._id),
+});
+
 const deleteCardMutation = async (id: string) => CardDoc.findByIdAndDelete(id);
 
-type CardsQuery = ReturnType<typeof getCardsQuery>;
+const deleteCardController = controllerBuilder.mutation({
+	mutation: async ({ params }) => deleteCardMutation(params.cardId!),
+});
 
-type CardsMutation = ReturnType<
+export type CardsQuery = ReturnType<typeof getCardsQuery>;
+
+export type CardsMutation = ReturnType<
 	| typeof deleteCardMutation
 	| typeof createCardMutation
 	| typeof likeCardMutation
 	| typeof dislikeCardMutation
 >;
 
-const getCards = controllerBuilder.query({
-	query: getCardsQuery,
-});
-
-const createCard = controllerBuilder.mutation({
-	mutation: async ({ body, user }) => createCardMutation(body, user._id),
-});
-
-const likeCard = controllerBuilder.mutation({
-	mutation: ({ params, user }) => likeCardMutation(params.cardId!, user._id),
-});
-
-const dislikeCard = controllerBuilder.mutation({
-	mutation: ({ params, user }) => dislikeCardMutation(params.cardId!, user._id),
-});
-
-const deleteCard = controllerBuilder.mutation({
-	mutation: async ({ params }) => deleteCardMutation(params.cardId!),
-});
-
 export {
-	type CardsQuery,
-	type CardsMutation,
-	getCards,
-	createCard,
-	likeCard,
-	dislikeCard,
-	deleteCard,
+	getCardsController,
+	createCardController,
+	likeCardController,
+	dislikeCardController,
+	deleteCardController,
 };

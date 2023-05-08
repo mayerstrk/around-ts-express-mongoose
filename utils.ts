@@ -11,6 +11,11 @@ const enum ErrorName {
 	cast = 'CastError',
 }
 
+const enum QueryKind {
+	all,
+	filter,
+}
+
 // Const enum Resource {
 // 	user = 'user',
 // 	users = 'users',
@@ -22,4 +27,10 @@ const linkValidationRegex =
 
 const mongooseLinkValidator = (link: string) => linkValidationRegex.test(link);
 
-export { Status, ErrorName, linkValidationRegex, mongooseLinkValidator };
+export {
+	Status,
+	ErrorName,
+	QueryKind,
+	linkValidationRegex,
+	mongooseLinkValidator,
+};

@@ -1,11 +1,29 @@
 import controllerBuilder from '../builders/controller-builder';
 import { UserDoc, type UserInput, type UserData } from '../models/user-model';
+import { QueryKind } from '../utils';
 
 const getUsersQuery = () => UserDoc.find({});
+
+const getUsersController = controllerBuilder.query({
+	query: getUsersQuery,
+	queryKind: QueryKind.all,
+});
+
 const getUserQuery = (id: string) => UserDoc.findById(id);
+
+const getUserController = controllerBuilder.query({
+	query(request) {
+		const { params } = request!;
+		return getUserQuery(params.userId!);
+	},
+});
 
 const createUserMutation = async (payload: UserInput) =>
 	UserDoc.create(payload);
+
+const createUserController = controllerBuilder.mutation({
+	mutation: async ({ body }) => createUserMutation(body),
+});
 
 const updateProfileMutation = (
 	userId: string,
@@ -16,6 +34,10 @@ const updateProfileMutation = (
 		runValidators: true,
 	});
 
+const updateProfileController = controllerBuilder.mutation({
+	mutation: ({ user, body }) => updateProfileMutation(user._id, body),
+});
+
 const updateAvatarMutation = (
 	userId: string,
 	payload: { avatar: UserData['avatar'] }
@@ -25,44 +47,23 @@ const updateAvatarMutation = (
 		runValidators: true,
 	});
 
-type UsersQuery = ReturnType<typeof getUserQuery | typeof getUsersQuery>;
+const updateAvatarController = controllerBuilder.mutation({
+	mutation: ({ user, body }) => updateAvatarMutation(user._id, body),
+});
 
-type UsersMutation = ReturnType<
+export type UsersQuery = ReturnType<typeof getUserQuery | typeof getUsersQuery>;
+
+export type UsersMutation = ReturnType<
 	| typeof createUserMutation
 	| typeof updateAvatarMutation
 	| typeof updateProfileMutation
 	| typeof updateAvatarMutation
 >;
 
-const getUsers = controllerBuilder.query({
-	query: getUsersQuery,
-});
-
-const getUser = controllerBuilder.query({
-	query(request) {
-		const { params } = request!;
-		return getUserQuery(params.userId!);
-	},
-});
-
-const createUser = controllerBuilder.mutation({
-	mutation: async ({ body }) => createUserMutation(body),
-});
-
-const updateProfile = controllerBuilder.mutation({
-	mutation: ({ user, body }) => updateProfileMutation(user._id, body),
-});
-
-const updateAvatar = controllerBuilder.mutation({
-	mutation: ({ user, body }) => updateAvatarMutation(user._id, body),
-});
-
 export {
-	type UsersQuery,
-	type UsersMutation,
-	getUsers,
-	getUser,
-	createUser,
-	updateProfile,
-	updateAvatar,
+	getUsersController,
+	getUserController,
+	createUserController,
+	updateProfileController,
+	updateAvatarController,
 };

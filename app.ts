@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-connect('mongodb://127.0.0.1:27017/aroundb');
+connect('mongodb://127.0.0.1:27017/aroundb-test');
 
 app.use((request: Request, response, next) => {
 	(request as Request & { user: { _id: string } }).user = {

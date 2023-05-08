@@ -1,16 +1,16 @@
 import { Router } from 'express';
 import {
-	createCard,
-	deleteCard,
-	getCards,
-	likeCard,
+	createCardController as createCard,
+	deleteCardController as deleteCard,
+	getCardsController as getCards,
+	likeCardController as likeCard,
 } from './controllers/cards-controller';
 import {
-	getUsers,
-	getUser,
-	createUser,
-	updateProfile,
-	updateAvatar,
+	getUsersController as getUsers,
+	getUserController as getUser,
+	createUserController as createUser,
+	updateProfileController as updateProfile,
+	updateAvatarController as updateAvatar,
 } from './controllers/users-controllers';
 
 const router = Router();

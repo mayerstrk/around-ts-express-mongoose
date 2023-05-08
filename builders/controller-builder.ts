@@ -7,7 +7,7 @@ import {
 	type CardsMutation,
 	type CardsQuery,
 } from '../controllers/cards-controller';
-import { Status, ErrorName } from '../utils';
+import { Status, ErrorName, QueryKind } from '../utils';
 
 type AppQuery = UsersQuery | CardsQuery;
 
@@ -26,6 +26,7 @@ interface AppRequest extends Request {
 
 interface QueryArgs {
 	query: (request?: AppRequest) => AppQuery;
+	queryKind?: QueryKind;
 }
 
 interface MutationArgs {
@@ -63,10 +64,15 @@ const handleError = (error: Error, response: Response) => {
 };
 
 const controllerBuilder = {
-	query({ query }: QueryArgs) {
-		return (request: Request, response: Response) => {
-			query(request as AppRequest)
-				.orFail()
+	query({ query, queryKind = QueryKind.filter }: QueryArgs) {
+		return async (request: Request, response: Response) => {
+			let promise = query(request as AppRequest);
+
+			if (queryKind === QueryKind.filter) {
+				promise = promise.orFail();
+			}
+
+			return promise
 				.then((data) => {
 					response.status(Status.ok).send({ data });
 				})
@@ -79,6 +85,7 @@ const controllerBuilder = {
 		return (request: Request, response: Response) => {
 			mutation(request as AppRequest)
 				.then((data) => {
+					response.status(Status.ok);
 					response.send({ data });
 				})
 				.catch((error) => {
