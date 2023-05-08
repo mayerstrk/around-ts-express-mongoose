@@ -41,7 +41,7 @@ const getUsers = controllerBuilder.query({
 const getUser = controllerBuilder.query({
 	query(request) {
 		const { params } = request!;
-		return getUserQuery(params.id);
+		return getUserQuery(params.userId!);
 	},
 });
 
