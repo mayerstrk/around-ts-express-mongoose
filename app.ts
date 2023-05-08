@@ -31,7 +31,7 @@ app.use((request: Request, response, next) => {
 app.use('/', routes);
 
 app.use((request, response) => {
-	response.status(Status.internalServerError);
+	response.status(Status.notFound);
 	response.send({ message: 'Error: unexpected request' });
 });
 
