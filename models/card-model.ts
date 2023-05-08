@@ -1,5 +1,5 @@
 import { Schema, model, type Types, type Document } from 'mongoose';
-import { linkValidationRegex, mongooseLinkValidator } from '../utils';
+import { mongooseLinkValidator } from '../utils';
 
 interface CardInput {
 	name: string;
