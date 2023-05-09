@@ -7,11 +7,14 @@ import {
 	type CardsMutation,
 	type CardsQuery,
 } from '../controllers/cards-controller';
-import { Status, ErrorName, QueryKind } from '../utils';
+import { Status, ErrorName, QueryKind, MutationKind } from '../utils';
 
 type AppQuery = UsersQuery | CardsQuery;
 
-type AppMutation = UsersMutation | CardsMutation;
+type AppMutation<IsCreateOrDelete extends boolean = false> =
+	IsCreateOrDelete extends true
+		? CardsMutation<true> | UsersMutation<true>
+		: UsersMutation | CardsMutation;
 
 interface AppRequest extends Request {
 	params: {
@@ -30,7 +33,8 @@ interface QueryArgs {
 }
 
 interface MutationArgs {
-	mutation: (request: AppRequest) => AppMutation;
+	mutation: (request: AppRequest) => AppMutation | AppMutation<true>;
+	mutationKind?: MutationKind;
 }
 
 const handleError = (error: Error, response: Response) => {
@@ -60,19 +64,20 @@ const handleError = (error: Error, response: Response) => {
 
 	response.send({
 		message: error.message ?? 'Unexpected error',
+		error: error.name,
 	});
 };
 
 const controllerBuilder = {
 	query({ query, queryKind = QueryKind.filter }: QueryArgs) {
-		return async (request: Request, response: Response) => {
-			let promise = query(request as AppRequest);
+		return (request: Request, response: Response) => {
+			let promiseChain = query(request as AppRequest);
 
 			if (queryKind === QueryKind.filter) {
-				promise = promise.orFail();
+				promiseChain = promiseChain.orFail();
 			}
 
-			return promise
+			promiseChain
 				.then((data) => {
 					response.status(Status.ok).send({ data });
 				})
@@ -81,9 +86,15 @@ const controllerBuilder = {
 				});
 		};
 	},
-	mutation({ mutation }: MutationArgs) {
+	mutation({ mutation, mutationKind = MutationKind.update }: MutationArgs) {
 		return (request: Request, response: Response) => {
-			mutation(request as AppRequest)
+			let promiseChain = mutation(request as AppRequest);
+
+			if (mutationKind === MutationKind.update) {
+				promiseChain = (promiseChain as AppMutation).orFail();
+			}
+
+			promiseChain
 				.then((data) => {
 					response.status(Status.ok);
 					response.send({ data });

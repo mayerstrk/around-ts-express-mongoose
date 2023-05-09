@@ -16,6 +16,12 @@ const enum QueryKind {
 	filter,
 }
 
+const enum MutationKind {
+	create,
+	delete,
+	update,
+}
+
 // Const enum Resource {
 // 	user = 'user',
 // 	users = 'users',
@@ -31,6 +37,7 @@ export {
 	Status,
 	ErrorName,
 	QueryKind,
+	MutationKind,
 	linkValidationRegex,
 	mongooseLinkValidator,
 };

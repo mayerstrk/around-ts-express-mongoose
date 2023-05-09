@@ -1,6 +1,6 @@
 import controllerBuilder from '../builders/controller-builder';
 import { UserDoc, type UserInput, type UserData } from '../models/user-model';
-import { QueryKind } from '../utils';
+import { MutationKind, QueryKind } from '../utils';
 
 const getUsersQuery = () => UserDoc.find({});
 
@@ -23,6 +23,7 @@ const createUserMutation = async (payload: UserInput) =>
 
 const createUserController = controllerBuilder.mutation({
 	mutation: async ({ body }) => createUserMutation(body),
+	mutationKind: MutationKind.create,
 });
 
 const updateProfileMutation = (
@@ -53,12 +54,10 @@ const updateAvatarController = controllerBuilder.mutation({
 
 export type UsersQuery = ReturnType<typeof getUserQuery | typeof getUsersQuery>;
 
-export type UsersMutation = ReturnType<
-	| typeof createUserMutation
-	| typeof updateAvatarMutation
-	| typeof updateProfileMutation
-	| typeof updateAvatarMutation
->;
+export type UsersMutation<IsCreateOrDelete extends boolean = false> =
+	IsCreateOrDelete extends true
+		? ReturnType<typeof createUserMutation>
+		: ReturnType<typeof updateAvatarMutation | typeof updateProfileMutation>;
 
 export {
 	getUsersController,
