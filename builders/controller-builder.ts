@@ -7,7 +7,7 @@ import {
 	type CardsMutation,
 	type CardsQuery,
 } from '../controllers/cards-controller';
-import { Status, ErrorName, QueryKind, MutationKind } from '../utils';
+import { Status, ErrorName, QueryKind, type MutationKind } from '../utils';
 
 type AppQuery = UsersQuery | CardsQuery;
 
@@ -33,7 +33,7 @@ interface QueryArgs {
 }
 
 interface MutationArgs {
-	mutation: (request: AppRequest) => AppMutation | AppMutation<true>;
+	mutation: (request: AppRequest) => AppMutation<true | false>;
 	mutationKind?: MutationKind;
 }
 
@@ -86,16 +86,21 @@ const controllerBuilder = {
 				});
 		};
 	},
-	mutation({ mutation, mutationKind = MutationKind.update }: MutationArgs) {
+	mutation({ mutation }: MutationArgs) {
 		return (request: Request, response: Response) => {
-			let promiseChain = mutation(request as AppRequest);
-
-			if (mutationKind === MutationKind.update) {
-				promiseChain = (promiseChain as AppMutation).orFail();
-			}
-
-			promiseChain
+			mutation(request as AppRequest)
 				.then((data) => {
+					if (!data) {
+						const error = new Error(
+							`No document with id: '${
+								request.params.cardId ?? request.params.userId
+							}' was found in model`
+						);
+						error.name = ErrorName.notFound;
+
+						throw error;
+					}
+
 					response.status(Status.ok);
 					response.send({ data });
 				})
