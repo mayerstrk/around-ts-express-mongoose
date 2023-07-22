@@ -11,6 +11,11 @@ const enum ErrorName {
 	cast = 'CastError',
 }
 
+const enum RequestKind {
+	query,
+	mutation,
+}
+
 const enum QueryKind {
 	all,
 	filter,
@@ -22,11 +27,12 @@ const enum MutationKind {
 	update,
 }
 
-// Const enum Resource {
-// 	user = 'user',
-// 	users = 'users',
-// 	cards = 'cards',
-// }
+const enum Resource {
+	user,
+	card,
+	users,
+	cards,
+}
 
 const linkValidationRegex =
 	/^http(s)?:\/\/(www.)?[\w.~:/?%#\]@!$&'()*+,;=]{1,256}$/i;
@@ -36,8 +42,10 @@ const mongooseLinkValidator = (link: string) => linkValidationRegex.test(link);
 export {
 	Status,
 	ErrorName,
+	RequestKind,
 	QueryKind,
 	MutationKind,
+	Resource,
 	linkValidationRegex,
 	mongooseLinkValidator,
 };

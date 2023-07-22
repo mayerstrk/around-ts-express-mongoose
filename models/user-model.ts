@@ -12,30 +12,31 @@ interface UserData extends Document, UserInput {
 	updatedAt: Date;
 }
 
-const userSchema = new Schema<UserInput>({
-	name: {
-		type: String,
-		minlength: 2,
-		maxlength: 30,
-		required: true,
-	},
-	about: {
-		type: String,
-		minlength: 2,
-		maxlength: 30,
-		required: true,
-	},
-	avatar: {
-		type: String,
-		required: true,
-		validate: {
-			validator: mongooseLinkValidator,
+const userSchema = new Schema<UserData>(
+	{
+		name: {
+			type: String,
+			minlength: 2,
+			maxlength: 30,
+			required: true,
+		},
+		about: {
+			type: String,
+			minlength: 2,
+			maxlength: 30,
+			required: true,
+		},
+		avatar: {
+			type: String,
+			required: true,
+			validate: {
+				validator: mongooseLinkValidator,
+			},
 		},
 	},
-});
+	{ timestamps: true }
+);
 
-userSchema.set('timestamps', true);
-
-const UserDoc = model<UserData>('User', userSchema);
+const UserDoc = model<typeof userSchema>('User', userSchema);
 
 export { type UserInput, type UserData, UserDoc };

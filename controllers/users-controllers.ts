@@ -1,63 +1,81 @@
-import controllerBuilder from '../builders/controller-builder';
-import { UserDoc, type UserInput, type UserData } from '../models/user-model';
-import { MutationKind, QueryKind } from '../utils';
+import controllerBuilder from '../builders/controller-builder/controller-builder';
+import { type AppRequest } from '../builders/controller-builder/controller-builder-types';
+import { UserDoc } from '../models/user-model';
+import {
+	type MutationKind,
+	QueryKind,
+	type Resource,
+	type RequestKind,
+} from '../utils';
 
-const getUsersQuery = () => UserDoc.find({});
+// Get users
+const getUsersQueryBuilder = (
+	_request: AppRequest<RequestKind.query, Resource.user, QueryKind.all> // eslint-disable-line @typescript-eslint/no-unused-vars
+) => UserDoc.find({});
 
 const getUsersController = controllerBuilder.query({
-	query: getUsersQuery,
-	queryKind: QueryKind.all,
+	queryBuilder: getUsersQueryBuilder,
 });
 
-const getUserQuery = (id: string) => UserDoc.findById(id);
+// Get user
+const getUserQueryBuilder = ({
+	params: { userId },
+}: AppRequest<RequestKind.query, Resource.user, QueryKind.filter>) =>
+	UserDoc.findById(userId);
 
 const getUserController = controllerBuilder.query({
-	query(request) {
-		const { params } = request!;
-		return getUserQuery(params.userId!);
-	},
+	queryBuilder: getUserQueryBuilder,
+	queryKind: QueryKind.filter,
 });
 
-const createUserMutation = async (payload: UserInput) =>
-	UserDoc.create(payload);
+// Create user
+const createUserMutationBuilder = async ({
+	body,
+}: AppRequest<RequestKind.mutation, Resource.user, MutationKind.create>) =>
+	UserDoc.create(body);
 
 const createUserController = controllerBuilder.mutation({
-	mutation: async ({ body }) => createUserMutation(body),
-	mutationKind: MutationKind.create,
+	mutationBuilder: createUserMutationBuilder,
 });
 
-const updateProfileMutation = (
-	userId: string,
-	payload: { name: UserData['name']; about: UserData['about'] }
-) =>
-	UserDoc.findByIdAndUpdate(userId, payload, {
+// Update profile
+const updateProfileMutationBuilder = ({
+	user,
+	body,
+}: AppRequest<RequestKind.mutation, Resource.user, MutationKind.update>) =>
+	UserDoc.findByIdAndUpdate(user._id, body, {
 		new: true,
 		runValidators: true,
 	});
 
 const updateProfileController = controllerBuilder.mutation({
-	mutation: ({ user, body }) => updateProfileMutation(user._id, body),
+	mutationBuilder: updateProfileMutationBuilder,
 });
 
-const updateAvatarMutation = (
-	userId: string,
-	payload: { avatar: UserData['avatar'] }
-) =>
-	UserDoc.findByIdAndUpdate(userId, payload, {
+// Update avatar
+const updateAvatarMutationBuilder = ({
+	user,
+	body,
+}: AppRequest<RequestKind.mutation, Resource.user, MutationKind.update>) =>
+	UserDoc.findByIdAndUpdate(user._id, body, {
 		new: true,
 		runValidators: true,
 	});
 
 const updateAvatarController = controllerBuilder.mutation({
-	mutation: ({ user, body }) => updateAvatarMutation(user._id, body),
+	mutationBuilder: updateAvatarMutationBuilder,
 });
 
-export type UsersQuery = ReturnType<typeof getUserQuery | typeof getUsersQuery>;
+export type UsersQuery = ReturnType<
+	typeof getUsersQueryBuilder | typeof getUserQueryBuilder
+>;
 
-export type UsersMutation<IsCreateOrDelete extends boolean = false> =
-	IsCreateOrDelete extends true
-		? ReturnType<typeof createUserMutation>
-		: ReturnType<typeof updateAvatarMutation | typeof updateProfileMutation>;
+export type UsersMutation<T extends MutationKind.create | MutationKind.update> =
+	T extends MutationKind.create
+		? ReturnType<typeof createUserMutationBuilder>
+		: ReturnType<
+				typeof updateAvatarMutationBuilder | typeof updateProfileMutationBuilder
+		  >;
 
 export {
 	getUsersController,

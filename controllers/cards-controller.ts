@@ -1,57 +1,87 @@
-import controllerBuilder from '../builders/controller-builder';
-import { CardDoc, type CardInput } from '../models/card-model';
-import { MutationKind, QueryKind } from '../utils';
+import controllerBuilder from '../builders/controller-builder/controller-builder';
+import { type AppRequest } from '../builders/controller-builder/controller-builder-types';
+import { CardDoc } from '../models/card-model';
+import {
+	type QueryKind,
+	type RequestKind,
+	type MutationKind,
+	type Resource,
+} from '../utils';
 
-const getCardsQuery = () => CardDoc.find({});
+// Get cards
+const getCardsQueryBuilder = (
+	_request: AppRequest<RequestKind.query, Resource.cards, QueryKind.all> // eslint-disable-line @typescript-eslint/no-unused-vars
+) => CardDoc.find({});
 
 const getCardsController = controllerBuilder.query({
-	query: getCardsQuery,
-	queryKind: QueryKind.all,
+	queryBuilder: getCardsQueryBuilder,
 });
 
-const createCardMutation = async (payload: CardInput, userId: string) =>
-	CardDoc.create({ ...payload, owner: userId });
+// Create card
+const createCardMutationBuilder = async ({
+	body,
+	user,
+}: AppRequest<RequestKind.mutation, Resource.card, MutationKind.create>) =>
+	CardDoc.create({ ...body, owner: user._id });
 
 const createCardController = controllerBuilder.mutation({
-	mutation: async ({ body, user }) => createCardMutation(body, user._id),
-	mutationKind: MutationKind.create,
+	mutationBuilder: createCardMutationBuilder,
 });
 
-const likeCardMutation = (cardId: string, userId: string) =>
+// Like card
+const likeCardMutationBuilder = ({
+	params: { cardId },
+	user,
+}: AppRequest<RequestKind.mutation, Resource.card, MutationKind.update>) =>
 	CardDoc.findByIdAndUpdate(
 		cardId,
-		{ $addToSet: { likes: userId } },
+		{ $addToSet: { likes: user._id } },
 		{ new: true, runValidators: true }
 	);
 
-const likeCardController = controllerBuilder.mutation({
-	mutation: ({ params, user }) => likeCardMutation(params.cardId!, user._id),
+const likeCardController = controllerBuilder.mutation<
+	Resource.card,
+	MutationKind.update
+>({
+	mutationBuilder: likeCardMutationBuilder,
 });
 
-const unlikeCardMutation = (cardId: string, userId: string) =>
+// Unlike card
+const unlikeCardMutationBuilder = ({
+	params: { cardId },
+	user,
+}: AppRequest<RequestKind.mutation, Resource.card, MutationKind.update>) =>
 	CardDoc.findByIdAndUpdate(
 		cardId,
-		{ $pull: { likes: userId } },
+		{ $pull: { likes: user._id } },
 		{ new: true }
 	);
 
 const unlikeCardController = controllerBuilder.mutation({
-	mutation: ({ params, user }) => unlikeCardMutation(params.cardId!, user._id),
+	mutationBuilder: unlikeCardMutationBuilder,
 });
 
-const deleteCardMutation = async (id: string) => CardDoc.findByIdAndDelete(id);
+// Delete card
+const deleteCardMutationBuilder = async ({
+	params: { cardId },
+}: AppRequest<RequestKind.mutation, Resource.card, MutationKind.delete>) =>
+	CardDoc.findByIdAndDelete(cardId);
 
 const deleteCardController = controllerBuilder.mutation({
-	mutation: async ({ params }) => deleteCardMutation(params.cardId!),
-	mutationKind: MutationKind.delete,
+	mutationBuilder: deleteCardMutationBuilder,
 });
 
-export type CardsQuery = ReturnType<typeof getCardsQuery>;
+export type CardsQueryBuilder = typeof getCardsQueryBuilder;
+export type CardsQuery = ReturnType<typeof getCardsQueryBuilder>;
 
-export type CardsMutation<IsCreateOrDelete extends boolean = false> =
-	IsCreateOrDelete extends true
-		? ReturnType<typeof deleteCardMutation | typeof createCardMutation>
-		: ReturnType<typeof likeCardMutation | typeof unlikeCardMutation>;
+export type CardsMutation<T extends MutationKind> =
+	T extends MutationKind.create
+		? ReturnType<typeof createCardMutationBuilder>
+		: T extends MutationKind.delete
+		? ReturnType<typeof deleteCardMutationBuilder>
+		: ReturnType<
+				typeof likeCardMutationBuilder | typeof unlikeCardMutationBuilder
+		  >;
 
 export {
 	getCardsController,

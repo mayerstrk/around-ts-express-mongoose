@@ -1,41 +1,19 @@
 import { type Request, type Response } from 'express';
 import {
-	type UsersQuery,
-	type UsersMutation,
-} from '../controllers/users-controllers';
+	Status,
+	ErrorName,
+	QueryKind,
+	type MutationKind,
+	type RequestKind,
+} from '../../utils';
+
 import {
-	type CardsMutation,
-	type CardsQuery,
-} from '../controllers/cards-controller';
-import { Status, ErrorName, QueryKind, type MutationKind } from '../utils';
-
-type AppQuery = UsersQuery | CardsQuery;
-
-type AppMutation<IsCreateOrDelete extends boolean = false> =
-	IsCreateOrDelete extends true
-		? CardsMutation<true> | UsersMutation<true>
-		: UsersMutation | CardsMutation;
-
-interface AppRequest extends Request {
-	params: {
-		userId?: string;
-		cardId?: string;
-	};
-
-	user: {
-		_id: string;
-	};
-}
-
-interface QueryArgs {
-	query: (request?: AppRequest) => AppQuery;
-	queryKind?: QueryKind;
-}
-
-interface MutationArgs {
-	mutation: (request: AppRequest) => AppMutation<true | false>;
-	mutationKind?: MutationKind;
-}
+	type QueryableResources,
+	type MutableResources,
+	type AppRequest,
+	type QueryBuilderOptions,
+	type MutationBuilderOptions,
+} from './controller-builder-types';
 
 const handleError = (error: Error, response: Response) => {
 	const errorName = error.name;
@@ -69,9 +47,16 @@ const handleError = (error: Error, response: Response) => {
 };
 
 const controllerBuilder = {
-	query({ query, queryKind = QueryKind.filter }: QueryArgs) {
+	query<R extends QueryableResources, K extends QueryKind>({
+		queryBuilder,
+		queryKind,
+	}: QueryBuilderOptions<R, K>) {
 		return (request: Request, response: Response) => {
-			let promiseChain = query(request as AppRequest);
+			const query = queryBuilder(
+				request as AppRequest<RequestKind.query, R, K>
+			);
+
+			let promiseChain = query;
 
 			if (queryKind === QueryKind.filter) {
 				promiseChain = promiseChain.orFail();
@@ -86,9 +71,14 @@ const controllerBuilder = {
 				});
 		};
 	},
-	mutation({ mutation }: MutationArgs) {
+	mutation<R extends MutableResources, K extends MutationKind>({
+		mutationBuilder,
+	}: MutationBuilderOptions<R, K>) {
 		return (request: Request, response: Response) => {
-			mutation(request as AppRequest)
+			const mutation = mutationBuilder(
+				request as AppRequest<RequestKind.mutation, R, K>
+			);
+			mutation
 				.then((data) => {
 					if (!data) {
 						const error = new Error(
@@ -112,4 +102,3 @@ const controllerBuilder = {
 };
 
 export default controllerBuilder;
-export type { AppQuery, AppRequest };
