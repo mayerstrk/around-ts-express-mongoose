@@ -8,6 +8,18 @@ import {
 	type RequestKind,
 } from '../utils';
 
+/**
+A queryBuilder is a function that takes a request: AppRequest and returns a query.
+Similarily - a mutaionBuilder is a function that takes a request: AppRequest and returns a mutation.
+Controllers are defined by passing a queryBuilder to controllerBuilder.query or a mutationBuilder to controllerBuilder.mutation
+Both controllerBuilder.query and controllerBuilder.mutation have generic type parameters that infer the type of the queryBuilder or mutationBuilder
+Alternatively, the type of the queryBuilder or mutationBuilder can be explicitly specified by passing generic type parameters to controllerBuilder.query or controllerBuilder.mutation
+Which will provide type safety for the queryBuilder or mutationBuilder.
+More type safety features are implemented for each generic type parameter.
+These types play nice with mongoose and express and allow for dynamic typing and error catching depending on the type of mutation or query,
+This functionality is implemented in the controllerBuilder.query and controllerBuilder.mutation functions.
+*/
+
 // Get users
 const getUsersQueryBuilder = (
 	_request: AppRequest<RequestKind.query, Resource.user, QueryKind.all> // eslint-disable-line @typescript-eslint/no-unused-vars
